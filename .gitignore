@@ -1,0 +1,12 @@
+target/
+.mvn/timing.properties
+
+.idea/
+*.iml
+.vscode/
+.cursor/
+
+.env
+.env.*
+
+run.ps1
