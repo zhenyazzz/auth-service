@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:tc:postgresql:15:///auth_service_test
+    url: jdbc:tc:postgresql:18:///auth_service_test
     username: test
     password: test
     hikari:
