@@ -13,6 +13,8 @@ concurrency:
 env:
   JAVA_VERSION: '21'
   DOCKER_IMAGE: zhenya465/auth-service
+  TESTCONTAINERS_RYUK_DISABLED: true
+  TESTCONTAINERS_REUSE_ENABLE: true
 
 permissions:
   contents: read
@@ -34,6 +36,11 @@ jobs:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: 'temurin'
           cache: 'maven'
+
+      - name: Verify Docker available
+        run: |
+          docker info
+          docker --version
 
       - name: Build & test (Maven verify)
         run: mvn -B clean verify -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false
