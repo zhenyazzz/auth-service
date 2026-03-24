@@ -15,6 +15,7 @@ import com.innowise.authservice.dto.response.AuthResponse;
 import com.innowise.authservice.dto.response.RegisterResponse;
 import com.innowise.authservice.dto.response.ValidateResponse;
 import com.innowise.authservice.exception.RoleNotFoundException;
+import com.innowise.authservice.exception.user.UserAlreadyExistsException;
 import com.innowise.authservice.exception.user.UserNotFoundException;
 import com.innowise.authservice.mapper.UserMapper;
 import com.innowise.authservice.model.Role;
@@ -23,10 +24,10 @@ import com.innowise.authservice.model.enums.RoleName;
 import com.innowise.authservice.model.enums.UserStatus;
 import com.innowise.authservice.repository.RoleRepository;
 import com.innowise.authservice.repository.UserRepository;
-import com.innowise.authservice.security.JwtService;
+import com.innowise.authservice.service.JwtService;
+import com.innowise.authservice.security.RefreshTokenRotation;
 import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.service.AuthService;
-import com.innowise.authservice.service.RefreshTokenRotation;
 import com.innowise.authservice.service.RefreshTokenService;
 
 import jakarta.transaction.Transactional;
@@ -51,9 +52,10 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = findByEmail(request.email());
+        User user = userRepository.findByEmailAndStatus(request.email(), UserStatus.ACTIVE)
+                .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
-            throw new BadCredentialsException("Invalid password");
+            throw new BadCredentialsException("Invalid credentials");
         }
         String refreshToken = refreshTokenService.generateRefreshToken(user); 
         return buildAuthResponse(user, refreshToken);
@@ -62,6 +64,10 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
+        if (userRepository.existsByEmail(registerRequest.email())) {
+            throw new UserAlreadyExistsException("User already exists with email: " + registerRequest.email());
+        }
+        
         Role role = roleRepository.findByName(RoleName.ROLE_USER)
                 .orElseThrow(() -> new RoleNotFoundException("Role not found with name: " + RoleName.ROLE_USER));
 
@@ -121,11 +127,6 @@ public class AuthServiceImpl implements AuthService{
     public void logout(TokenPayload payload, String refreshToken) {
         refreshTokenService.revoke(refreshToken);
         jwtService.revokeToken(payload);
-    }
-
-    private User findByEmail(String email) {
-        return userRepository.findByEmailAndStatus(email, UserStatus.ACTIVE)
-                .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
     }
 
     private AuthResponse buildAuthResponse(User user, String refreshToken) {

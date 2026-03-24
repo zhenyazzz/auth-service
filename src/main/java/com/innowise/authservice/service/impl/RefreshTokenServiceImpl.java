@@ -15,7 +15,7 @@ import com.innowise.authservice.mapper.RefreshTokenMapper;
 import com.innowise.authservice.model.RefreshToken;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.repository.RefreshTokenRepository;
-import com.innowise.authservice.service.RefreshTokenRotation;
+import com.innowise.authservice.security.RefreshTokenRotation;
 import com.innowise.authservice.service.RefreshTokenService;
 
 import lombok.RequiredArgsConstructor;
@@ -36,13 +36,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
         String rawRefreshToken = generateSecureToken();
         save(user, rawRefreshToken);
         return rawRefreshToken;
-    }
-
-    @Transactional
-    private void save(User user, String rawRefreshToken) {
-        String tokenHash = sha256Hex(rawRefreshToken);
-        RefreshToken entity = refreshTokenMapper.toEntity(user, tokenHash, props);
-        refreshTokenRepository.save(entity);
     }
 
     @Override
@@ -91,6 +84,13 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     @Transactional
     public void revokeAllByUserId(UUID userId) {
         refreshTokenRepository.revokeAllActiveByUserId(userId);
+    }
+
+    @Transactional
+    private void save(User user, String rawRefreshToken) {
+        String tokenHash = sha256Hex(rawRefreshToken);
+        RefreshToken entity = refreshTokenMapper.toEntity(user, tokenHash, props);
+        refreshTokenRepository.save(entity);
     }
 
     @Transactional(readOnly = true)

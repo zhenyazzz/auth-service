@@ -1,4 +1,4 @@
-package com.innowise.authservice.security;
+package com.innowise.authservice.service.impl;
 
 import org.springframework.stereotype.Service;
 
@@ -6,6 +6,10 @@ import lombok.RequiredArgsConstructor;
 import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.model.enums.RoleName;
+import com.innowise.authservice.security.TokenBlacklistService;
+import com.innowise.authservice.security.TokenPayload;
+import com.innowise.authservice.security.TokenRevokedException;
+import com.innowise.authservice.service.JwtService;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -22,7 +26,7 @@ import jakarta.annotation.PostConstruct;
 
 @Service
 @RequiredArgsConstructor
-public class JwtService {
+public class JwtServiceImpl implements JwtService {
 
     private final JwtProperties props;
     private final TokenBlacklistService blacklist;
@@ -33,6 +37,7 @@ public class JwtService {
         signingKey = Keys.hmacShaKeyFor(Decoders.BASE64URL.decode(props.getSecret()));
     }
 
+    @Override
     public String extractBearerToken(String authorization) {
         if (authorization == null) {
             return null;
@@ -40,6 +45,7 @@ public class JwtService {
         return authorization.startsWith("Bearer ") ? authorization.substring(7) : authorization;
     }
 
+    @Override
     public String generateAccessToken(User user) {
         Instant now = Instant.now();
         List<String> roles = user.getRoles().stream()
@@ -58,6 +64,7 @@ public class JwtService {
             .compact();
     }
 
+    @Override
     public TokenPayload validateAndExtract(String token) {
         Claims c = parseClaims(token);
         UUID userId = UUID.fromString(c.getSubject());
@@ -73,6 +80,7 @@ public class JwtService {
         );
     }
 
+    @Override
     public void revokeToken(TokenPayload payload) {
         if (payload == null || payload.userId() == null) {
             return;

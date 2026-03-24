@@ -1,4 +1,4 @@
-package com.innowise.authservice.service;
+package com.innowise.authservice.security;
 
 import com.innowise.authservice.model.User;
 

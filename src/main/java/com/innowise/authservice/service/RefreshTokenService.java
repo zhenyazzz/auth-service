@@ -3,6 +3,7 @@ package com.innowise.authservice.service;
 import java.util.UUID;
 
 import com.innowise.authservice.model.User;
+import com.innowise.authservice.security.RefreshTokenRotation;
 
 public interface RefreshTokenService {
 

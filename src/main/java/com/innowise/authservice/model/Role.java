@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.Builder;
 
 import com.innowise.authservice.model.enums.RoleName;
 
@@ -23,6 +24,7 @@ import com.innowise.authservice.model.enums.RoleName;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Role {
 
     @Id
