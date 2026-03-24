@@ -30,26 +30,26 @@ services:
       timeout: 3s
       retries: 5
 
-  # auth-service:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: auth-service-app
-  #   ports:
-  #     - "${AUTH_SERVICE_PORT:-8080}:8080"
-  #   env_file: .env
-  #   environment:
-  #     SPRING_PROFILES_ACTIVE: docker
-  #     SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://auth-service-postgresql:5432/auth_service_db}
-  #     SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-auth_service}
-  #     SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-auth_service_secret}
-  #     SPRING_DATA_REDIS_HOST: redis
-  #     SPRING_DATA_REDIS_PORT: "6379"
-  #   depends_on:
-  #     auth-service-postgresql:
-  #       condition: service_healthy
-  #     redis:
-  #       condition: service_healthy
+  auth-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service-app
+    ports:
+      - "${AUTH_SERVICE_PORT:-8080}:8080"
+    env_file: .env
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: ${SPRING_DATASOURCE_URL:-jdbc:postgresql://auth-service-postgresql:5432/auth_service_db}
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME:-auth_service}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD:-auth_service_secret}
+      SPRING_DATA_REDIS_HOST: redis
+      SPRING_DATA_REDIS_PORT: "6379"
+    depends_on:
+      auth-service-postgresql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
 
 volumes:
   auth-service-db-data:
