@@ -1,16 +1,17 @@
 spring:
   datasource:
-    url: jdbc:tc:postgresql:18:///auth_service_test
+    url: jdbc:tc:postgresql:15:///auth_service_test
     username: test
     password: test
     hikari:
-      connection-timeout: 20000
+      connection-timeout: 60000
       maximum-pool-size: 5
   jpa:
     hibernate:
       ddl-auto: validate
   liquibase:
-    enabled: false
+    enabled: true
+    change-log: classpath:db/changelog/db.changelog-master.yaml
 
 app:
   jwt:
