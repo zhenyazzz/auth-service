@@ -28,6 +28,9 @@ import com.innowise.authservice.dto.response.ErrorResponse;
 @RequiredArgsConstructor
 public class JwtAuthFilter extends OncePerRequestFilter {
 
+    private static final String ERROR_CODE_AUTHENTICATION_FAILED = "AUTHENTICATION_FAILED";
+    private static final String ERROR_CODE_TOKEN_REVOKED = "TOKEN_REVOKED";
+
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
     
@@ -48,14 +51,14 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
         try {
             if (!authorization.startsWith("Bearer ")) {
-                writeUnauthorized(response, "AUTHENTICATION_FAILED", "Invalid Authorization header");
+                writeUnauthorized(response, ERROR_CODE_AUTHENTICATION_FAILED, "Invalid Authorization header");
                 return;
             }
 
             String token = jwtService.extractBearerToken(authorization);
             if (token == null || token.isBlank()) {
                 SecurityContextHolder.clearContext();
-                writeUnauthorized(response, "AUTHENTICATION_FAILED", "Invalid or empty JWT");
+                writeUnauthorized(response, ERROR_CODE_AUTHENTICATION_FAILED, "Invalid or empty JWT");
                 return;
             }
 
@@ -74,7 +77,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (RuntimeException ex) {
             SecurityContextHolder.clearContext();
-            String errorCode = ex instanceof TokenRevokedException ? "TOKEN_REVOKED" : "AUTHENTICATION_FAILED";
+            String errorCode = ex instanceof TokenRevokedException ? ERROR_CODE_TOKEN_REVOKED : ERROR_CODE_AUTHENTICATION_FAILED;
             writeUnauthorized(response, errorCode, ex.getMessage() != null ? ex.getMessage() : "Invalid JWT");
             return;
         }
