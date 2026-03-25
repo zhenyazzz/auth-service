@@ -36,7 +36,6 @@ jobs:
           cache: 'maven'
 
       - name: Cache SonarQube scanner
-        if: ${{ secrets.SONAR_TOKEN != '' }}
         uses: actions/cache@v4
         with:
           path: ~/.sonar/cache
@@ -52,10 +51,13 @@ jobs:
         run: mvn -B clean verify -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false
 
       - name: SonarQube analysis
-        if: ${{ secrets.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         run: |
+          if [ -z "${SONAR_TOKEN:-}" ]; then
+            echo "Skipping SonarQube (SONAR_TOKEN not configured)"
+            exit 0
+          fi
           set -e
           SONAR_URL="${{ secrets.SONAR_HOST_URL }}"
           if [ -z "$SONAR_URL" ]; then
