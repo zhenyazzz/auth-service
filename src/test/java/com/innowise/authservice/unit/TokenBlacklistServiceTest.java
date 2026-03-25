@@ -20,7 +20,7 @@ import com.innowise.authservice.utils.AuthTestDataFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("TokenBlacklistService unit tests")
-public class TokenBlacklistServiceTest {
+class TokenBlacklistServiceTest {
 
     @Mock
     private StringRedisTemplate redis;
@@ -40,7 +40,7 @@ public class TokenBlacklistServiceTest {
     @DisplayName("getUserTokenVersion when userId is null returns 0")
     void getUserTokenVersion_whenUserIdNull_returnsZero() {
         long result = tokenBlacklistService.getUserTokenVersion(null);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -52,7 +52,7 @@ public class TokenBlacklistServiceTest {
         when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn(null);
 
         long result = tokenBlacklistService.getUserTokenVersion(userId);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -64,7 +64,7 @@ public class TokenBlacklistServiceTest {
         when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn("   ");
 
         long result = tokenBlacklistService.getUserTokenVersion(userId);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -76,7 +76,7 @@ public class TokenBlacklistServiceTest {
         when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn("not-a-number");
 
         long result = tokenBlacklistService.getUserTokenVersion(userId);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -95,7 +95,7 @@ public class TokenBlacklistServiceTest {
     @DisplayName("incrementUserTokenVersion when userId is null returns 0")
     void incrementUserTokenVersion_whenUserIdNull_returnsZero() {
         long result = tokenBlacklistService.incrementUserTokenVersion(null);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 
     @Test
@@ -119,6 +119,6 @@ public class TokenBlacklistServiceTest {
         when(valueOps.increment(KEY_PREFIX + "user-ver:" + userId)).thenReturn(null);
 
         long result = tokenBlacklistService.incrementUserTokenVersion(userId);
-        assertThat(result).isEqualTo(0L);
+        assertThat(result).isZero();
     }
 }

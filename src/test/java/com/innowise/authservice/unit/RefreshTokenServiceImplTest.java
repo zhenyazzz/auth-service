@@ -56,9 +56,10 @@ class RefreshTokenServiceImplTest {
 
             String result = refreshTokenService.generateRefreshToken(user);
 
-            assertThat(result).isNotNull();
-            assertThat(result).isNotEmpty();
-            assertThat(result.length()).isGreaterThan(20);
+            assertThat(result)
+                    .isNotNull()
+                    .isNotEmpty()
+                    .hasSizeGreaterThan(20);
             verify(persistence).save(eq(user), anyString());
         }
     }

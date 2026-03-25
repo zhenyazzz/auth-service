@@ -3,7 +3,6 @@ package com.innowise.authservice.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -47,7 +46,7 @@ import com.innowise.authservice.utils.UserTestDataFactory;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("AuthServiceImpl unit tests")
-public class AuthServiceImplTest {
+class AuthServiceImplTest {
 
     @Mock
     private UserRepository userRepository;

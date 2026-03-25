@@ -31,7 +31,7 @@ import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JwtServiceImpl unit tests")
-public class JwtServiceImplTest {
+class JwtServiceImplTest {
 
     private static final String DEFAULT_JWT_SECRET_BASE64URL =
             "Y2hhbmdlLW1lLWluLXByb2R1Y3Rpb24tdGhpcy1pcy1hLTI1Ni1iaXQtc2VjcmV0LWtleS1mb3ItZGV2LW9ubHktY2hhbmdlLWl0";
