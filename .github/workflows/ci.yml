@@ -35,6 +35,14 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
+      - name: Cache SonarQube scanner
+        if: ${{ secrets.SONAR_TOKEN != '' }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
       - name: Verify Docker available
         run: |
           docker info
@@ -44,13 +52,19 @@ jobs:
         run: mvn -B clean verify -Dhttp.keepAlive=false -Dmaven.wagon.http.pool=false
 
       - name: SonarQube analysis
+        if: ${{ secrets.SONAR_TOKEN != '' }}
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: >
-          mvn -B sonar:sonar
-          -Dsonar.host.url=${{ secrets.SONAR_HOST_URL }}
-          -Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }}
-          -Dsonar.organization=${{ secrets.SONAR_ORGANIZATION }}
+        run: |
+          set -e
+          SONAR_URL="${{ secrets.SONAR_HOST_URL }}"
+          if [ -z "$SONAR_URL" ]; then
+            SONAR_URL='https://sonarcloud.io'
+          elif [[ "$SONAR_URL" != http://* && "$SONAR_URL" != https://* ]]; then
+            SONAR_URL="https://${SONAR_URL#//}"
+          fi
+          mvn -B sonar:sonar \
+            -Dsonar.host.url="$SONAR_URL"
 
       - name: Upload JAR artifact
         uses: actions/upload-artifact@v4

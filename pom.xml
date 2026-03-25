@@ -38,6 +38,9 @@
             **/*Filter.java
         </sonar.coverage.exclusions>
         <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>zhenyazzz</sonar.organization>
+        <sonar.projectKey>zhenyazzz_auth-service</sonar.projectKey>
     </properties>
 
     <dependencies>
