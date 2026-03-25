@@ -3,7 +3,6 @@ package com.innowise.authservice.unit;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -58,11 +57,11 @@ class RefreshTokenPersistenceTest {
             String raw = "raw-token-value";
             String expectedHash = sha256Hex(raw);
             RefreshToken entity = RefreshTokenTestDataFactory.buildValidRefreshToken(user);
-            when(refreshTokenMapper.toEntity(eq(user), eq(expectedHash), eq(jwtProperties))).thenReturn(entity);
+            when(refreshTokenMapper.toEntity(user, expectedHash, jwtProperties)).thenReturn(entity);
 
             persistence.save(user, raw);
 
-            verify(refreshTokenMapper).toEntity(eq(user), eq(expectedHash), eq(jwtProperties));
+            verify(refreshTokenMapper).toEntity(user, expectedHash, jwtProperties);
             verify(refreshTokenRepository).save(entity);
         }
     }

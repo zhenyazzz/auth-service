@@ -4,10 +4,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -43,40 +47,23 @@ class TokenBlacklistServiceTest {
         assertThat(result).isZero();
     }
 
-    @Test
-    @DisplayName("getUserTokenVersion when value is null returns 0")
-    void getUserTokenVersion_whenValueNull_returnsZero() {
+    @ParameterizedTest(name = "getUserTokenVersion when value is {0} returns 0")
+    @MethodSource("getUserTokenVersion_invalidStoredValues")
+    void getUserTokenVersion_whenStoredValueInvalid_returnsZero(String caseLabel, String storedValue) {
         UUID userId = UUID.randomUUID();
         when(jwtProperties.getBlacklistKeyPrefix()).thenReturn(KEY_PREFIX);
         when(redis.opsForValue()).thenReturn(valueOps);
-        when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn(null);
+        when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn(storedValue);
 
         long result = tokenBlacklistService.getUserTokenVersion(userId);
         assertThat(result).isZero();
     }
 
-    @Test
-    @DisplayName("getUserTokenVersion when value is blank returns 0")
-    void getUserTokenVersion_whenValueBlank_returnsZero() {
-        UUID userId = UUID.randomUUID();
-        when(jwtProperties.getBlacklistKeyPrefix()).thenReturn(KEY_PREFIX);
-        when(redis.opsForValue()).thenReturn(valueOps);
-        when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn("   ");
-
-        long result = tokenBlacklistService.getUserTokenVersion(userId);
-        assertThat(result).isZero();
-    }
-
-    @Test
-    @DisplayName("getUserTokenVersion when value is not a number returns 0")
-    void getUserTokenVersion_whenValueNotNumber_returnsZero() {
-        UUID userId = UUID.randomUUID();
-        when(jwtProperties.getBlacklistKeyPrefix()).thenReturn(KEY_PREFIX);
-        when(redis.opsForValue()).thenReturn(valueOps);
-        when(valueOps.get(KEY_PREFIX + "user-ver:" + userId)).thenReturn("not-a-number");
-
-        long result = tokenBlacklistService.getUserTokenVersion(userId);
-        assertThat(result).isZero();
+    private static Stream<Arguments> getUserTokenVersion_invalidStoredValues() {
+        return Stream.of(
+                Arguments.of("null", null),
+                Arguments.of("blank", "   "),
+                Arguments.of("not a number", "not-a-number"));
     }
 
     @Test
