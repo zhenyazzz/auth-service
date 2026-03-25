@@ -10,7 +10,7 @@ spring:
     hibernate:
       ddl-auto: validate
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: false
 
 app:
   jwt:
