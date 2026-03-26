@@ -27,19 +27,19 @@ public class AuthTestDataFactory {
     public final String DEFAULT_BLACKLIST_KEY_PREFIX = "auth:jwt:blacklist:test:";
 
     public LoginRequest buildLoginRequest() {
-        return new LoginRequest(UserTestDataFactory.DEFAULT_EMAIL, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
+        return new LoginRequest(UserTestDataFactory.DEFAULT_LOGIN, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
     }
 
-    public LoginRequest buildLoginRequest(String email, String password) {
-        return new LoginRequest(email, password);
+    public LoginRequest buildLoginRequest(String login, String password) {
+        return new LoginRequest(login, password);
     }
 
     public RegisterRequest buildRegisterRequest() {
-        return new RegisterRequest(UserTestDataFactory.DEFAULT_EMAIL, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
+        return new RegisterRequest(UserTestDataFactory.DEFAULT_LOGIN, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
     }
 
-    public RegisterRequest buildRegisterRequest(String email, String password) {
-        return new RegisterRequest(email, password);
+    public RegisterRequest buildRegisterRequest(String login, String password) {
+        return new RegisterRequest(login, password);
     }
 
     public ValidateRequest buildValidateRequest() {
@@ -67,12 +67,12 @@ public class AuthTestDataFactory {
     }
 
     public RegisterResponse buildRegisterResponse() {
-        return buildRegisterResponse(UUID.randomUUID(), UserTestDataFactory.DEFAULT_EMAIL);
+        return buildRegisterResponse(UUID.randomUUID(), UserTestDataFactory.DEFAULT_LOGIN);
     }
 
-    public RegisterResponse buildRegisterResponse(UUID userId, String email) {
+    public RegisterResponse buildRegisterResponse(UUID userId, String login) {
         return new RegisterResponse(
-            new RegisterResponse.UserInfo(userId, email, List.of(RoleName.ROLE_USER)),
+            new RegisterResponse.UserInfo(userId, login, List.of(RoleName.ROLE_USER)),
             DEFAULT_ACCESS_TOKEN,
             DEFAULT_REFRESH_TOKEN,
             DEFAULT_EXPIRES_IN,
@@ -97,11 +97,11 @@ public class AuthTestDataFactory {
     }
 
     public TokenPayload buildTokenPayload(UUID userId) {
-        return new TokenPayload(userId, UserTestDataFactory.DEFAULT_EMAIL, List.of(RoleName.ROLE_USER), 1L, Instant.now().plusSeconds(DEFAULT_EXPIRES_IN));
+        return new TokenPayload(userId, UserTestDataFactory.DEFAULT_LOGIN, List.of(RoleName.ROLE_USER), 1L, Instant.now().plusSeconds(DEFAULT_EXPIRES_IN));
     }
 
     public TokenPayload buildTokenPayloadWithVersion(UUID userId, long version) {
-        return new TokenPayload(userId, UserTestDataFactory.DEFAULT_EMAIL, List.of(RoleName.ROLE_USER), version, Instant.now().plusSeconds(DEFAULT_EXPIRES_IN));
+        return new TokenPayload(userId, UserTestDataFactory.DEFAULT_LOGIN, List.of(RoleName.ROLE_USER), version, Instant.now().plusSeconds(DEFAULT_EXPIRES_IN));
     }
 
     public String buildAuthorizationHeader() {

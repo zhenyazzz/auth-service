@@ -3,6 +3,7 @@ package com.innowise.authservice.service.impl;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 
 import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.exception.refresh.RefreshTokenNotFoundException;
@@ -35,6 +36,13 @@ public class RefreshTokenPersistence {
     public RefreshToken findByRawToken(String rawRefreshToken) {
         String tokenHash = sha256Hex(rawRefreshToken);
         return refreshTokenRepository.findByTokenHash(tokenHash)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
+    }
+
+    @Transactional(readOnly = true)
+    public RefreshToken findByRawTokenAndUserId(String rawRefreshToken, UUID userId) {
+        String tokenHash = sha256Hex(rawRefreshToken);
+        return refreshTokenRepository.findByTokenHashAndUserId(tokenHash, userId)
                 .orElseThrow(() -> new RefreshTokenNotFoundException("Refresh token not found"));
     }
 

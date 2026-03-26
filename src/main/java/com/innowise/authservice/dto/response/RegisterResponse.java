@@ -14,7 +14,7 @@ public record RegisterResponse(
 ) {
     public record UserInfo(
             UUID id,
-            String email,
+            String login,
             List<RoleName> roles
     ) {}
 }

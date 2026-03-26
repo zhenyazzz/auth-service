@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.innowise.authservice.exception.refresh.RefreshTokenInvalidException;
 import com.innowise.authservice.exception.refresh.RefreshTokenNotFoundException;
@@ -26,6 +27,7 @@ import com.innowise.authservice.model.RefreshToken;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.repository.RefreshTokenRepository;
 import com.innowise.authservice.security.RefreshTokenRotation;
+import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.service.impl.RefreshTokenPersistence;
 import com.innowise.authservice.service.impl.RefreshTokenServiceImpl;
 import com.innowise.authservice.utils.RefreshTokenTestDataFactory;
@@ -235,28 +237,33 @@ class RefreshTokenServiceImplTest {
     class Revoke {
 
         @Test
-        @DisplayName("marks token revoked and saves via repository")
-        void whenExists_marksRevokedAndSaves() {
-            User user = UserTestDataFactory.buildUser("revoke@example.com");
-            RefreshToken entity = RefreshTokenTestDataFactory.buildValidRefreshToken(user);
+        @DisplayName("revokes token when owner matches principal")
+        void whenOwnerMatches_revokesAndSaves() {
+            UUID userId = UUID.randomUUID();
+            User user = UserTestDataFactory.buildUser(userId, "owner@example.com", com.innowise.authservice.model.enums.UserStatus.ACTIVE);
+            RefreshToken token = RefreshTokenTestDataFactory.buildValidRefreshToken(user);
+            TokenPayload payload = new TokenPayload(userId, "owner@example.com", java.util.List.of(com.innowise.authservice.model.enums.RoleName.ROLE_USER), 1L, Instant.now().plusSeconds(60));
 
-            when(persistence.findByRawToken("token-to-revoke")).thenReturn(entity);
+            when(persistence.findByRawTokenAndUserId("owned-token", userId)).thenReturn(token);
 
-            refreshTokenService.revoke("token-to-revoke");
+            refreshTokenService.revoke(payload, "owned-token");
 
-            assertThat(entity.isRevoked()).isTrue();
-            verify(refreshTokenRepository).save(entity);
+            assertThat(token.isRevoked()).isTrue();
+            verify(refreshTokenRepository).save(token);
         }
 
         @Test
-        @DisplayName("propagates RefreshTokenNotFoundException from persistence")
-        void whenNotFound_throwsRefreshTokenNotFoundException() {
-            when(persistence.findByRawToken("invalid-token"))
+        @DisplayName("throws 403-style exception when token belongs to another user")
+        void whenOwnerMismatch_throwsAccessDeniedException() {
+            UUID principalId = UUID.randomUUID();
+            TokenPayload payload = new TokenPayload(principalId, "other@example.com", java.util.List.of(com.innowise.authservice.model.enums.RoleName.ROLE_USER), 1L, Instant.now().plusSeconds(60));
+
+            when(persistence.findByRawTokenAndUserId("foreign-token", principalId))
                     .thenThrow(new RefreshTokenNotFoundException("Refresh token not found"));
 
-            assertThatThrownBy(() -> refreshTokenService.revoke("invalid-token"))
-                    .isInstanceOf(RefreshTokenNotFoundException.class)
-                    .hasMessageContaining("Refresh token not found");
+            assertThatThrownBy(() -> refreshTokenService.revoke(payload, "foreign-token"))
+                    .isInstanceOf(AccessDeniedException.class)
+                    .hasMessageContaining("does not belong");
         }
     }
 

@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public AuthResponse login(LoginRequest request) {
-        User user = userRepository.findByEmailAndStatus(request.email(), UserStatus.ACTIVE)
+        User user = userRepository.findByLoginAndStatus(request.login(), UserStatus.ACTIVE)
                 .orElseThrow(() -> new BadCredentialsException("Invalid credentials"));
         if (!passwordEncoder.matches(request.password(), user.getPassword())) {
             throw new BadCredentialsException("Invalid credentials");
@@ -64,8 +64,8 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public RegisterResponse register(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.email())) {
-            throw new UserAlreadyExistsException("User already exists with email: " + registerRequest.email());
+        if (userRepository.existsByLogin(registerRequest.login())) {
+            throw new UserAlreadyExistsException("User already exists with login: " + registerRequest.login());
         }
         
         Role role = roleRepository.findByName(RoleName.ROLE_USER)
@@ -125,7 +125,7 @@ public class AuthServiceImpl implements AuthService{
     @Override
     @Transactional
     public void logout(TokenPayload payload, String refreshToken) {
-        refreshTokenService.revoke(refreshToken);
+        refreshTokenService.revoke(payload, refreshToken);
         jwtService.revokeToken(payload);
     }
 

@@ -11,8 +11,10 @@ import com.innowise.authservice.model.RefreshToken;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.repository.RefreshTokenRepository;
 import com.innowise.authservice.security.RefreshTokenRotation;
+import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.service.RefreshTokenService;
 
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,8 +27,6 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final RefreshTokenPersistence persistence;
     private final SecureRandom secureRandom = new SecureRandom();
-
-
 
     @Override
     @Transactional
@@ -64,8 +64,18 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 
     @Override
     @Transactional
-    public void revoke(String rawRefreshToken) {
-        revokeByRawToken(rawRefreshToken);
+    public void revoke(TokenPayload payload, String rawRefreshToken) {
+        if (payload == null || payload.userId() == null) {
+            throw new AccessDeniedException("Refresh token does not belong to authenticated principal");
+        }
+        RefreshToken token;
+        try {
+            token = persistence.findByRawTokenAndUserId(rawRefreshToken, payload.userId());
+        } catch (RefreshTokenNotFoundException ex) {
+            throw new AccessDeniedException("Refresh token does not belong to authenticated principal");
+        }
+        token.setRevoked(true);
+        refreshTokenRepository.save(token);
     }
 
     @Override

@@ -12,9 +12,9 @@ import com.innowise.authservice.model.enums.UserStatus;
 @Repository
 public interface UserRepository extends JpaRepository<User, UUID> {
 
-    boolean existsByEmail(String email);
+    boolean existsByLogin(String login);
 
-    Optional<User> findByEmailAndStatus(String email, UserStatus status);
+    Optional<User> findByLoginAndStatus(String login, UserStatus status);
 
     Optional<User> findByIdAndStatus(UUID userId, UserStatus active);
 

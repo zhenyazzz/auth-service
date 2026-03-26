@@ -93,7 +93,7 @@ class JwtServiceImplTest {
     void generateAccessToken_includesCorrectClaims() {
         User user = UserTestDataFactory.buildUserWithRoles(
             UUID.randomUUID(),
-            UserTestDataFactory.DEFAULT_EMAIL,
+            UserTestDataFactory.DEFAULT_LOGIN,
             UserTestDataFactory.buildRoleUser(),
             UserTestDataFactory.buildRoleAdmin()
         );
@@ -122,7 +122,7 @@ class JwtServiceImplTest {
 
         assertThat(payload).isNotNull();
         assertThat(payload.userId()).isEqualTo(user.getId());
-        assertThat(payload.email()).isEqualTo(UserTestDataFactory.DEFAULT_EMAIL);
+        assertThat(payload.email()).isEqualTo(UserTestDataFactory.DEFAULT_LOGIN);
         assertThat(payload.roles()).contains(RoleName.ROLE_USER);
     }
 

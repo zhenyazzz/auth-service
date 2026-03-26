@@ -18,6 +18,9 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID
     @EntityGraph(value = "RefreshToken.withUser")
     Optional<RefreshToken> findByTokenHash(String tokenHash);
 
+    @EntityGraph(value = "RefreshToken.withUser")
+    Optional<RefreshToken> findByTokenHashAndUserId(String tokenHash, UUID userId);
+
     
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE RefreshToken rt SET rt.revoked = true WHERE rt.user.id = :userId AND rt.revoked = false")

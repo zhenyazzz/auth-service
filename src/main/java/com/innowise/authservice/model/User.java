@@ -45,7 +45,7 @@ public class User {
     private UUID id;
 
     @Column(nullable = false, unique = true, length = 255)
-    private String email;
+    private String login;
 
     @Column(nullable = false, length = 255)
     private String password;

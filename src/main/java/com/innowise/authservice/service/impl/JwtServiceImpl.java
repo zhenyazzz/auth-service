@@ -55,7 +55,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder()
             .issuer(props.getIssuer())
             .subject(user.getId().toString())
-            .claim("email", user.getEmail())
+            .claim("email", user.getLogin())
             .claim("roles", roles)
             .claim("tokenVersion", tokenVersion)
             .issuedAt(Date.from(now))

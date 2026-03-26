@@ -13,32 +13,32 @@ import com.innowise.authservice.model.enums.UserStatus;
 @UtilityClass
 public class UserTestDataFactory {
 
-    public final String DEFAULT_EMAIL = "test@example.com";
+    public final String DEFAULT_LOGIN = "test@example.com";
     public final String DEFAULT_PASSWORD = "encoded-password";
     public final String DEFAULT_RAW_PASSWORD = "Password123";
-    public final String WRONG_EMAIL = "wrong@example.com";
+    public final String WRONG_LOGIN = "wrong@example.com";
     public final String WRONG_PASSWORD = "wrong-password";
 
     public User buildUser() {
-        return buildUser(UUID.randomUUID(), DEFAULT_EMAIL, UserStatus.ACTIVE);
+        return buildUser(UUID.randomUUID(), DEFAULT_LOGIN, UserStatus.ACTIVE);
     }
 
     public User buildUser(UUID id) {
-        return buildUser(id, DEFAULT_EMAIL, UserStatus.ACTIVE);
+        return buildUser(id, DEFAULT_LOGIN, UserStatus.ACTIVE);
     }
 
-    public User buildUser(String email) {
-        return buildUser(UUID.randomUUID(), email, UserStatus.ACTIVE);
+    public User buildUser(String login) {
+        return buildUser(UUID.randomUUID(), login, UserStatus.ACTIVE);
     }
 
     public User buildUser(UserStatus status) {
-        return buildUser(UUID.randomUUID(), DEFAULT_EMAIL, status);
+        return buildUser(UUID.randomUUID(), DEFAULT_LOGIN, status);
     }
 
-    public User buildUser(UUID id, String email, UserStatus status) {
+    public User buildUser(UUID id, String login, UserStatus status) {
         User user = new User();
         user.setId(id);
-        user.setEmail(email);
+        user.setLogin(login);
         user.setPassword(DEFAULT_PASSWORD);
         user.setRoles(Set.of(buildRoleUser()));
         user.setStatus(status);
@@ -53,10 +53,10 @@ public class UserTestDataFactory {
         return buildUser(UserStatus.DELETED);
     }
 
-    public User buildUserWithRoles(UUID id, String email, Role... roles) {
+    public User buildUserWithRoles(UUID id, String login, Role... roles) {
         User user = new User();
         user.setId(id);
-        user.setEmail(email);
+        user.setLogin(login);
         user.setPassword(DEFAULT_PASSWORD);
         user.setRoles(Set.of(roles));
         user.setStatus(UserStatus.ACTIVE);

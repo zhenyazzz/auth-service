@@ -13,7 +13,7 @@ databaseChangeLog:
                     primaryKey: true
                     nullable: false
               - column:
-                  name: email
+                  name: login
                   type: VARCHAR(255)
                   constraints:
                     nullable: false
@@ -43,11 +43,11 @@ databaseChangeLog:
                     nullable: false
                     
         - createIndex:
-            indexName: idx_users_email
+            indexName: idx_users_login
             tableName: users
             columns:
               - column:
-                  name: email
+                  name: login
 
         - createTable:
             tableName: refresh_tokens

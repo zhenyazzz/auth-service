@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.PATCH, "/auth/*/activate").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/auth/*").hasRole("ADMIN")
                 .requestMatchers("/auth/**").authenticated()
-                .anyRequest().authenticated()
+                .anyRequest().denyAll()
             )
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class)
             .build();

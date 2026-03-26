@@ -4,6 +4,7 @@ import java.util.UUID;
 
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.security.RefreshTokenRotation;
+import com.innowise.authservice.security.TokenPayload;
 
 public interface RefreshTokenService {
 
@@ -15,7 +16,7 @@ public interface RefreshTokenService {
 
     boolean validate(String refreshToken);
 
-    void revoke(String refreshToken);
+    void revoke(TokenPayload payload, String refreshToken);
 
     void revokeAllByUserId(UUID userId);
 }

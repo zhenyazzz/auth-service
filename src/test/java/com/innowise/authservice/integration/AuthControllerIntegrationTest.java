@@ -22,13 +22,13 @@ import com.innowise.authservice.utils.AuthTestDataFactory;
 @DisplayName("Auth API integration tests (Controller → Service → Repository → DB)")
 class AuthControllerIntegrationTest extends AbstractIntegrationTest {
 
-    private String uniqueEmail() {
+    private String uniqueLogin() {
         return "user-" + UUID.randomUUID() + "@example.com";
     }
 
     private RegisterResponse registerUser() {
-        String email = uniqueEmail();
-        RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(email, "Password123");
+        String login = uniqueLogin();
+        RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(login, "Password123");
 
         return webTestClient
             .post()
@@ -48,8 +48,8 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
         @Test
         @DisplayName("creates user and returns 201 with tokens")
         void createsUser_andReturns201WithTokens() {
-            String email = uniqueEmail();
-            RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(email, "Password123");
+            String login = uniqueLogin();
+            RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(login, "Password123");
 
             RegisterResponse response = webTestClient
                 .post()
@@ -64,18 +64,18 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
             assertThat(response).isNotNull();
             assertThat(response.user()).isNotNull();
             assertThat(response.user().id()).isNotNull();
-            assertThat(response.user().email()).isEqualTo(email.toLowerCase());
+            assertThat(response.user().login()).isEqualTo(login.toLowerCase());
             assertThat(response.accessToken()).isNotNull();
             assertThat(response.refreshToken()).isNotNull();
             assertThat(response.tokenType()).isEqualTo("Bearer");
         }
 
         @Test
-        @DisplayName("when email already exists returns 409")
-        void whenEmailExists_returns409() {
+        @DisplayName("when login already exists returns 409")
+        void whenLoginExists_returns409() {
             RegisterResponse first = registerUser();
 
-            RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(first.user().email(), "Password123");
+            RegisterRequest request = AuthTestDataFactory.buildRegisterRequest(first.user().login(), "Password123");
 
             webTestClient
                 .post()
@@ -96,7 +96,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("when valid credentials returns 200 and tokens")
         void whenValidCredentials_returns200AndTokens() {
             RegisterResponse registered = registerUser();
-            LoginRequest request = AuthTestDataFactory.buildLoginRequest(registered.user().email(), "Password123");
+            LoginRequest request = AuthTestDataFactory.buildLoginRequest(registered.user().login(), "Password123");
 
             AuthResponse response = webTestClient
                 .post()
@@ -118,7 +118,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("when invalid password returns 401")
         void whenInvalidPassword_returns401() {
             RegisterResponse registered = registerUser();
-            LoginRequest request = AuthTestDataFactory.buildLoginRequest(registered.user().email(), "WrongPassword");
+            LoginRequest request = AuthTestDataFactory.buildLoginRequest(registered.user().login(), "WrongPassword");
 
             webTestClient
                 .post()

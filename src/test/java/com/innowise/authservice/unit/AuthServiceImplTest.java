@@ -79,7 +79,7 @@ class AuthServiceImplTest {
         User user = UserTestDataFactory.buildActiveUser();
         LoginRequest request = AuthTestDataFactory.buildLoginRequest();
 
-        when(userRepository.findByEmailAndStatus(UserTestDataFactory.DEFAULT_EMAIL, UserStatus.ACTIVE))
+        when(userRepository.findByLoginAndStatus(UserTestDataFactory.DEFAULT_LOGIN, UserStatus.ACTIVE))
             .thenReturn(Optional.of(user));
         when(passwordEncoder.matches(UserTestDataFactory.DEFAULT_RAW_PASSWORD, user.getPassword())).thenReturn(true);
         when(refreshTokenService.generateRefreshToken(user)).thenReturn(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
@@ -97,9 +97,9 @@ class AuthServiceImplTest {
     @Test
     @DisplayName("login when user not found throws BadCredentialsException")
     void login_whenUserNotFound_throwsBadCredentialsException() {
-        LoginRequest request = AuthTestDataFactory.buildLoginRequest(UserTestDataFactory.WRONG_EMAIL, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
+        LoginRequest request = AuthTestDataFactory.buildLoginRequest(UserTestDataFactory.WRONG_LOGIN, UserTestDataFactory.DEFAULT_RAW_PASSWORD);
 
-        when(userRepository.findByEmailAndStatus(UserTestDataFactory.WRONG_EMAIL, UserStatus.ACTIVE))
+        when(userRepository.findByLoginAndStatus(UserTestDataFactory.WRONG_LOGIN, UserStatus.ACTIVE))
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(request))
@@ -111,9 +111,9 @@ class AuthServiceImplTest {
     @DisplayName("login when password is invalid throws BadCredentialsException")
     void login_whenPasswordInvalid_throwsBadCredentialsException() {
         User user = UserTestDataFactory.buildActiveUser();
-        LoginRequest request = AuthTestDataFactory.buildLoginRequest(UserTestDataFactory.DEFAULT_EMAIL, UserTestDataFactory.WRONG_PASSWORD);
+        LoginRequest request = AuthTestDataFactory.buildLoginRequest(UserTestDataFactory.DEFAULT_LOGIN, UserTestDataFactory.WRONG_PASSWORD);
 
-        when(userRepository.findByEmailAndStatus(UserTestDataFactory.DEFAULT_EMAIL, UserStatus.ACTIVE))
+        when(userRepository.findByLoginAndStatus(UserTestDataFactory.DEFAULT_LOGIN, UserStatus.ACTIVE))
             .thenReturn(Optional.of(user));
         when(passwordEncoder.matches(UserTestDataFactory.WRONG_PASSWORD, user.getPassword())).thenReturn(false);
 
@@ -136,7 +136,7 @@ class AuthServiceImplTest {
         when(jwtService.generateAccessToken(savedUser)).thenReturn(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN);
         when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofMinutes(15));
         when(userMapper.toUserInfo(savedUser)).thenReturn(
-            new RegisterResponse.UserInfo(savedUser.getId(), savedUser.getEmail(), java.util.List.of(RoleName.ROLE_USER))
+            new RegisterResponse.UserInfo(savedUser.getId(), savedUser.getLogin(), java.util.List.of(RoleName.ROLE_USER))
         );
 
         RegisterResponse result = authService.register(request);
@@ -146,7 +146,7 @@ class AuthServiceImplTest {
         assertThat(result.refreshToken()).isEqualTo(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
         assertThat(result.tokenType()).isEqualTo("Bearer");
         assertThat(result.user()).isNotNull();
-        assertThat(result.user().email()).isEqualTo(UserTestDataFactory.DEFAULT_EMAIL);
+        assertThat(result.user().login()).isEqualTo(UserTestDataFactory.DEFAULT_LOGIN);
     }
 
     @Test
@@ -282,7 +282,7 @@ class AuthServiceImplTest {
 
         authService.logout(payload, AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
 
-        verify(refreshTokenService).revoke(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
+        verify(refreshTokenService).revoke(payload, AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
         verify(jwtService).revokeToken(payload);
     }
 }
