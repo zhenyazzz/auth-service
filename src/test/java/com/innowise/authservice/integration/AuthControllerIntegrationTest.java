@@ -17,6 +17,7 @@ import com.innowise.authservice.dto.response.AuthResponse;
 import com.innowise.authservice.dto.response.ErrorResponse;
 import com.innowise.authservice.dto.response.RegisterResponse;
 import com.innowise.authservice.dto.response.ValidateResponse;
+import com.innowise.authservice.security.BearerTokenConstants;
 import com.innowise.authservice.utils.AuthTestDataFactory;
 
 @DisplayName("Auth API integration tests (Controller → Service → Repository → DB)")
@@ -67,7 +68,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
             assertThat(response.user().login()).isEqualTo(login.toLowerCase());
             assertThat(response.accessToken()).isNotNull();
             assertThat(response.refreshToken()).isNotNull();
-            assertThat(response.tokenType()).isEqualTo("Bearer");
+            assertThat(response.tokenType()).isEqualTo(BearerTokenConstants.BEARER_TOKEN_TYPE);
         }
 
         @Test
@@ -233,7 +234,7 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
             webTestClient
                 .post()
                 .uri("/auth/logout")
-                .headers(h -> h.set("Authorization", "Bearer " + registered.accessToken()))
+                .headers(h -> h.set("Authorization", BearerTokenConstants.BEARER_PREFIX + registered.accessToken()))
                 .bodyValue(request)
                 .exchange()
                 .expectStatus().isNoContent();

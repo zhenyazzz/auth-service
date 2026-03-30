@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.model.enums.RoleName;
+import com.innowise.authservice.security.BearerTokenConstants;
+import com.innowise.authservice.security.IssuedAccessToken;
 import com.innowise.authservice.security.TokenBlacklistService;
 import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.security.TokenRevokedException;
@@ -42,26 +44,30 @@ public class JwtServiceImpl implements JwtService {
         if (authorization == null) {
             return null;
         }
-        return authorization.startsWith("Bearer ") ? authorization.substring(7) : authorization;
+        return authorization.startsWith(BearerTokenConstants.BEARER_PREFIX)
+                ? authorization.substring(BearerTokenConstants.BEARER_PREFIX.length())
+                : authorization;
     }
 
     @Override
-    public String generateAccessToken(User user) {
+    public IssuedAccessToken generateAccessToken(User user) {
+        long expirySeconds = props.getAccessTokenExpiry().toSeconds();
         Instant now = Instant.now();
         List<String> roles = user.getRoles().stream()
             .map(r -> r.getName().name())
             .toList();
         long tokenVersion = blacklist.getUserTokenVersion(user.getId());
-        return Jwts.builder()
+        String token = Jwts.builder()
             .issuer(props.getIssuer())
             .subject(user.getId().toString())
             .claim("email", user.getLogin())
             .claim("roles", roles)
             .claim("tokenVersion", tokenVersion)
             .issuedAt(Date.from(now))
-            .expiration(Date.from(now.plusSeconds(props.getAccessTokenExpiry().toSeconds())))
+            .expiration(Date.from(now.plusSeconds(expirySeconds)))
             .signWith(signingKey, Jwts.SIG.HS512)
             .compact();
+        return new IssuedAccessToken(token, (int) expirySeconds);
     }
 
     @Override

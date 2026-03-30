@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.time.Duration;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -19,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.dto.request.LoginRequest;
 import com.innowise.authservice.dto.request.RefreshRequest;
 import com.innowise.authservice.dto.request.RegisterRequest;
@@ -36,6 +34,8 @@ import com.innowise.authservice.model.enums.RoleName;
 import com.innowise.authservice.model.enums.UserStatus;
 import com.innowise.authservice.repository.RoleRepository;
 import com.innowise.authservice.repository.UserRepository;
+import com.innowise.authservice.security.BearerTokenConstants;
+import com.innowise.authservice.security.IssuedAccessToken;
 import com.innowise.authservice.security.RefreshTokenRotation;
 import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.service.JwtService;
@@ -61,9 +61,6 @@ class AuthServiceImplTest {
     private JwtService jwtService;
 
     @Mock
-    private JwtProperties jwtProperties;
-
-    @Mock
     private UserMapper userMapper;
 
     @Mock
@@ -83,8 +80,8 @@ class AuthServiceImplTest {
             .thenReturn(Optional.of(user));
         when(passwordEncoder.matches(UserTestDataFactory.DEFAULT_RAW_PASSWORD, user.getPassword())).thenReturn(true);
         when(refreshTokenService.generateRefreshToken(user)).thenReturn(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
-        when(jwtService.generateAccessToken(user)).thenReturn(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN);
-        when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofMinutes(15));
+        when(jwtService.generateAccessToken(user))
+            .thenReturn(new IssuedAccessToken(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN, 900));
 
         AuthResponse result = authService.login(request);
 
@@ -133,8 +130,8 @@ class AuthServiceImplTest {
         when(userMapper.toEntity(any(), any(), any())).thenReturn(savedUser);
         when(userRepository.save(savedUser)).thenReturn(savedUser);
         when(refreshTokenService.generateRefreshToken(savedUser)).thenReturn(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
-        when(jwtService.generateAccessToken(savedUser)).thenReturn(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN);
-        when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofMinutes(15));
+        when(jwtService.generateAccessToken(savedUser))
+            .thenReturn(new IssuedAccessToken(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN, 900));
         when(userMapper.toUserInfo(savedUser)).thenReturn(
             new RegisterResponse.UserInfo(savedUser.getId(), savedUser.getLogin(), java.util.List.of(RoleName.ROLE_USER))
         );
@@ -144,7 +141,7 @@ class AuthServiceImplTest {
         assertThat(result).isNotNull();
         assertThat(result.accessToken()).isEqualTo(AuthTestDataFactory.DEFAULT_ACCESS_TOKEN);
         assertThat(result.refreshToken()).isEqualTo(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN);
-        assertThat(result.tokenType()).isEqualTo("Bearer");
+        assertThat(result.tokenType()).isEqualTo(BearerTokenConstants.BEARER_TOKEN_TYPE);
         assertThat(result.user()).isNotNull();
         assertThat(result.user().login()).isEqualTo(UserTestDataFactory.DEFAULT_LOGIN);
     }
@@ -199,8 +196,8 @@ class AuthServiceImplTest {
         RefreshTokenRotation rotation = new RefreshTokenRotation(user, "new-refresh-token");
 
         when(refreshTokenService.rotateRefreshToken(AuthTestDataFactory.DEFAULT_REFRESH_TOKEN)).thenReturn(rotation);
-        when(jwtService.generateAccessToken(user)).thenReturn("new-access-token");
-        when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofMinutes(15));
+        when(jwtService.generateAccessToken(user))
+            .thenReturn(new IssuedAccessToken("new-access-token", 900));
 
         AuthResponse result = authService.refreshToken(request);
 

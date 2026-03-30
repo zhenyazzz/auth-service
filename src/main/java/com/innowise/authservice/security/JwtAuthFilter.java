@@ -50,7 +50,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
 
         try {
-            if (!authorization.startsWith("Bearer ")) {
+            if (!authorization.startsWith(BearerTokenConstants.BEARER_PREFIX)) {
                 writeUnauthorized(response, ERROR_CODE_AUTHENTICATION_FAILED, "Invalid Authorization header");
                 return;
             }

@@ -6,7 +6,6 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.dto.request.LoginRequest;
 import com.innowise.authservice.dto.request.RefreshRequest;
 import com.innowise.authservice.dto.request.RegisterRequest;
@@ -25,6 +24,8 @@ import com.innowise.authservice.model.enums.UserStatus;
 import com.innowise.authservice.repository.RoleRepository;
 import com.innowise.authservice.repository.UserRepository;
 import com.innowise.authservice.service.JwtService;
+import com.innowise.authservice.security.BearerTokenConstants;
+import com.innowise.authservice.security.IssuedAccessToken;
 import com.innowise.authservice.security.RefreshTokenRotation;
 import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.service.AuthService;
@@ -45,7 +46,6 @@ public class AuthServiceImpl implements AuthService{
     private final RefreshTokenService refreshTokenService;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
-    private final JwtProperties jwtProperties;
     private final UserMapper userMapper;
     private final RoleRepository roleRepository;
 
@@ -77,13 +77,13 @@ public class AuthServiceImpl implements AuthService{
     }
 
     private RegisterResponse buildRegisterResponse(User user, String refreshToken) {
-        String accessToken = jwtService.generateAccessToken(user);
+        IssuedAccessToken issued = jwtService.generateAccessToken(user);
         return new RegisterResponse(
                 userMapper.toUserInfo(user),
-                accessToken,
+                issued.token(),
                 refreshToken,
-                accessTokenExpiresInSeconds(),
-                "Bearer");
+                issued.expiresInSeconds(),
+                BearerTokenConstants.BEARER_TOKEN_TYPE);
     }
 
     @Override
@@ -130,12 +130,8 @@ public class AuthServiceImpl implements AuthService{
     }
 
     private AuthResponse buildAuthResponse(User user, String refreshToken) {
-        String accessToken = jwtService.generateAccessToken(user);
-        return new AuthResponse(accessToken, refreshToken, accessTokenExpiresInSeconds());
-    }
-
-    private int accessTokenExpiresInSeconds() {
-        return (int) jwtProperties.getAccessTokenExpiry().toSeconds();
+        IssuedAccessToken issued = jwtService.generateAccessToken(user);
+        return new AuthResponse(issued.token(), refreshToken, issued.expiresInSeconds());
     }
 
 }

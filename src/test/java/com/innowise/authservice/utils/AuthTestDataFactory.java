@@ -14,6 +14,7 @@ import com.innowise.authservice.dto.response.AuthResponse;
 import com.innowise.authservice.dto.response.RegisterResponse;
 import com.innowise.authservice.dto.response.ValidateResponse;
 import com.innowise.authservice.model.enums.RoleName;
+import com.innowise.authservice.security.BearerTokenConstants;
 import com.innowise.authservice.security.TokenPayload;
 
 @UtilityClass
@@ -22,7 +23,7 @@ public class AuthTestDataFactory {
     public final String DEFAULT_ACCESS_TOKEN = "test-access-token";
     public final String DEFAULT_REFRESH_TOKEN = "test-refresh-token";
     public final String INVALID_TOKEN = "invalid-token";
-    public final String BEARER_PREFIX = "Bearer ";
+    public final String BEARER_PREFIX = BearerTokenConstants.BEARER_PREFIX;
     public final int DEFAULT_EXPIRES_IN = 900;
     public final String DEFAULT_BLACKLIST_KEY_PREFIX = "auth:jwt:blacklist:test:";
 
@@ -76,7 +77,7 @@ public class AuthTestDataFactory {
             DEFAULT_ACCESS_TOKEN,
             DEFAULT_REFRESH_TOKEN,
             DEFAULT_EXPIRES_IN,
-            "Bearer"
+            BearerTokenConstants.BEARER_TOKEN_TYPE
         );
     }
 

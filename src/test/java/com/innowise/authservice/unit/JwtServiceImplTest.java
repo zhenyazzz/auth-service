@@ -12,6 +12,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import com.innowise.authservice.config.JwtProperties;
 import com.innowise.authservice.model.User;
 import com.innowise.authservice.model.enums.RoleName;
+import com.innowise.authservice.security.IssuedAccessToken;
 import com.innowise.authservice.security.TokenBlacklistService;
 import com.innowise.authservice.security.TokenPayload;
 import com.innowise.authservice.security.TokenRevokedException;
@@ -82,10 +83,11 @@ class JwtServiceImplTest {
         when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofHours(1));
         when(tokenBlacklistService.getUserTokenVersion(user.getId())).thenReturn(1L);
 
-        String result = jwtServiceImpl.generateAccessToken(user);
+        IssuedAccessToken result = jwtServiceImpl.generateAccessToken(user);
 
-        assertThat(result).isNotNull();
-        assertThat(result.split("\\.")).hasSize(3);
+        assertThat(result.token()).isNotNull();
+        assertThat(result.expiresInSeconds()).isEqualTo(3600);
+        assertThat(result.token().split("\\.")).hasSize(3);
     }
 
     @Test
@@ -102,9 +104,11 @@ class JwtServiceImplTest {
         when(jwtProperties.getAccessTokenExpiry()).thenReturn(Duration.ofHours(2));
         when(tokenBlacklistService.getUserTokenVersion(user.getId())).thenReturn(5L);
 
-        String token = jwtServiceImpl.generateAccessToken(user);
+        IssuedAccessToken issued = jwtServiceImpl.generateAccessToken(user);
+        String token = issued.token();
 
         assertThat(token).isNotNull();
+        assertThat(issued.expiresInSeconds()).isEqualTo(7200);
     }
 
     @Test
@@ -116,7 +120,7 @@ class JwtServiceImplTest {
         User user = UserTestDataFactory.buildUser();
         when(tokenBlacklistService.getUserTokenVersion(user.getId())).thenReturn(1L);
 
-        String token = jwtServiceImpl.generateAccessToken(user);
+        String token = jwtServiceImpl.generateAccessToken(user).token();
 
         TokenPayload payload = jwtServiceImpl.validateAndExtract(token);
 
@@ -152,7 +156,7 @@ class JwtServiceImplTest {
             .thenReturn(1L)
             .thenReturn(2L);
 
-        String token = jwtServiceImpl.generateAccessToken(user);
+        String token = jwtServiceImpl.generateAccessToken(user).token();
 
         assertThatThrownBy(() -> jwtServiceImpl.validateAndExtract(token))
             .isInstanceOf(TokenRevokedException.class)
