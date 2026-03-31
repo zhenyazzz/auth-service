@@ -1,0 +1,11 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://auth-service-postgresql:5432/auth_service_db}
+    username: ${SPRING_DATASOURCE_USERNAME:auth_service}
+    password: ${SPRING_DATASOURCE_PASSWORD:auth_service_secret}
+    driver-class-name: org.postgresql.Driver
+
+  data:
+    redis:
+      host: ${SPRING_DATA_REDIS_HOST:redis}
+      port: ${SPRING_DATA_REDIS_PORT:6379}
