@@ -33,6 +33,7 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/auth/login",
                     "/auth/register",
+                    "/auth/internal/*",
                     "/auth/refresh",
                     "/auth/validate",
                     "/actuator/health"

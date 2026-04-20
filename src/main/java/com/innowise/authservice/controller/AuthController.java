@@ -120,4 +120,15 @@ public class AuthController {
         return ResponseEntity.noContent().build();
     }
 
+    /**
+     * Delete user for internal orchestration flow.
+     *
+     * @param userId user ID
+     */
+    @DeleteMapping("/internal/{userId}")
+    public ResponseEntity<Void> deleteUserInternal(@PathVariable UUID userId) {
+        authService.deleteUser(userId);
+        return ResponseEntity.noContent().build();
+    }
+
 }

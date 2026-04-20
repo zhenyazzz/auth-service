@@ -240,4 +240,57 @@ class AuthControllerIntegrationTest extends AbstractIntegrationTest {
                 .expectStatus().isNoContent();
         }
     }
+
+    @Nested
+    @DisplayName("DELETE /auth/{userId} and /auth/internal/{userId}")
+    class DeleteUser {
+
+        @Test
+        @DisplayName("admin delete without token returns 403")
+        void adminDelete_withoutToken_returns403() {
+            RegisterResponse registered = registerUser();
+
+            webTestClient
+                .delete()
+                .uri("/auth/{userId}", registered.user().id())
+                .exchange()
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        @DisplayName("admin delete with user token returns 403")
+        void adminDelete_withUserToken_returns403() {
+            RegisterResponse registered = registerUser();
+
+            webTestClient
+                .delete()
+                .uri("/auth/{userId}", registered.user().id())
+                .headers(h -> h.set("Authorization", BearerTokenConstants.BEARER_PREFIX + registered.accessToken()))
+                .exchange()
+                .expectStatus().isForbidden();
+        }
+
+        @Test
+        @DisplayName("internal delete without token returns 204 and user can no longer login")
+        void internalDelete_withoutToken_returns204_andDisablesLogin() {
+            RegisterResponse registered = registerUser();
+
+            webTestClient
+                .delete()
+                .uri("/auth/internal/{userId}", registered.user().id())
+                .exchange()
+                .expectStatus().isNoContent();
+
+            LoginRequest loginRequest = AuthTestDataFactory.buildLoginRequest(registered.user().login(), "Password123");
+
+            webTestClient
+                .post()
+                .uri("/auth/login")
+                .bodyValue(loginRequest)
+                .exchange()
+                .expectStatus().isUnauthorized()
+                .expectBody(ErrorResponse.class)
+                .value(err -> assertThat(err.errorCode()).isEqualTo("BAD_CREDENTIALS"));
+        }
+    }
 }
