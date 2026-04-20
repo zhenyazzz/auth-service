@@ -116,8 +116,7 @@ public class AuthController {
     @DeleteMapping("/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteUser(@PathVariable UUID userId) {
-        authService.deleteUser(userId);
-        return ResponseEntity.noContent().build();
+        return deleteUserAndNoContent(userId);
     }
 
     /**
@@ -127,6 +126,10 @@ public class AuthController {
      */
     @DeleteMapping("/internal/{userId}")
     public ResponseEntity<Void> deleteUserInternal(@PathVariable UUID userId) {
+        return deleteUserAndNoContent(userId);
+    }
+
+    private ResponseEntity<Void> deleteUserAndNoContent(UUID userId) {
         authService.deleteUser(userId);
         return ResponseEntity.noContent().build();
     }
