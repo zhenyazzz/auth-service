@@ -36,7 +36,7 @@ public class SecurityConfig {
                     "/auth/internal/*",
                     "/auth/refresh",
                     "/auth/validate",
-                    "/actuator/health"
+                    "/actuator/health/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/auth/*/activate").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/auth/*").hasRole("ADMIN")
