@@ -22,3 +22,13 @@ app:
     access-token-expiry: ${JWT_ACCESS_TOKEN_EXPIRY:PT15M}
     refresh-token-expiry: ${JWT_REFRESH_TOKEN_EXPIRY:P7D}
     blacklist-key-prefix: ${JWT_BLACKLIST_KEY_PREFIX:auth:jwt:blacklist:}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
