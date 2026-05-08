@@ -10,3 +10,10 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
+management:
+  tracing:
+    enabled: ${MONITORING_TRACING_ENABLED:${MONITORING_ENABLED:false}}
+  otlp:
+    metrics:
+      export:
+        enabled: ${MONITORING_METRICS_ENABLED:${MONITORING_ENABLED:false}}
