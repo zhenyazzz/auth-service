@@ -1,12 +1,19 @@
 spring:
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/auth_service_db}
-    username: ${SPRING_DATASOURCE_USERNAME:auth_service}
-    password: ${SPRING_DATASOURCE_PASSWORD:auth_service_secret}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:${AUTH_POSTGRES_PORT:5432}/auth_service_db}
+    username: ${SPRING_DATASOURCE_USERNAME:${AUTH_POSTGRES_USER:auth_service}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${AUTH_POSTGRES_PASSWORD:auth_service_secret}}
     driver-class-name: org.postgresql.Driver
 
   data:
     redis:
-      host: localhost
+      host: ${REDIS_HOST:localhost}
       port: ${SPRING_DATA_REDIS_PORT:6379}
 
+management:
+  tracing:
+    enabled: ${MONITORING_TRACING_ENABLED:${MONITORING_ENABLED:false}}
+  otlp:
+    metrics:
+      export:
+        enabled: ${MONITORING_METRICS_ENABLED:${MONITORING_ENABLED:false}}

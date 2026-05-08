@@ -33,9 +33,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/auth/login",
                     "/auth/register",
+                    "/auth/internal/*",
                     "/auth/refresh",
                     "/auth/validate",
-                    "/actuator/health"
+                    "/actuator/**"
                 ).permitAll()
                 .requestMatchers(HttpMethod.PATCH, "/auth/*/activate").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/auth/*").hasRole("ADMIN")

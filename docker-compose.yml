@@ -36,7 +36,7 @@ services:
       dockerfile: Dockerfile
     container_name: auth-service-app
     ports:
-      - "${AUTH_SERVICE_PORT:-8080}:8080"
+      - "${AUTH_SERVICE_PORT:-8080}:8082"
     env_file: .env
     environment:
       SPRING_PROFILES_ACTIVE: docker
